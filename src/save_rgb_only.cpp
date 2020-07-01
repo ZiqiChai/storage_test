@@ -12,6 +12,11 @@
 //OpenCV
 #include <opencv2/opencv.hpp>
 
+#define CV_WAITKEY_SPACE 32
+#define CV_WAITKEY_ESC 27
+#define CV_WAITKEY_TAB 9
+#define CV_WAITKEY_ENTER 13
+
 using namespace std;
 
 std::string pkg_loc = ros::package::getPath("storage_test");
@@ -23,7 +28,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& colormsg)
 	cv::Mat color;
 	color = cv_bridge::toCvShare(colormsg,"bgr8")->image.clone();
 	imshow("rgb-image", color);
-	if (cv::waitKey(20))
+	if (cv::waitKey(20) == CV_WAITKEY_SPACE)
 	{
 		std::stringstream ss;
 		ss << saved_count;

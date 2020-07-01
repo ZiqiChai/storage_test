@@ -15,9 +15,6 @@ set(CUDA_USE_STATIC_CUDA_RUNTIME OFF)
 find_package( OpenCV REQUIRED )
 include_directories(${OpenCV_INCLUDE_DIRS})
 
-find_package(VTK REQUIRED)
-include_directories(${VTK_INCLUDE_DIRS})
-
 find_package(PCL REQUIRED)
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
