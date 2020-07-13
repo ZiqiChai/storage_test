@@ -17,6 +17,9 @@
 #define CV_WAITKEY_TAB 9
 #define CV_WAITKEY_ENTER 13
 
+//Customed
+#include "mkdir.hpp"
+
 using namespace std;
 
 std::string pkg_loc = ros::package::getPath("storage_test");
@@ -41,6 +44,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& colormsg)
 
 int main(int argc,char **argv)
 {
+	createDirectory(pkg_loc + "/data/");
 	ros::init(argc,argv,"rgb_collector");
 	ros::NodeHandle nh;
 	ros::Subscriber sub = nh.subscribe(argv[1], 1, imageCallback);

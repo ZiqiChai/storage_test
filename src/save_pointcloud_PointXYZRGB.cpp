@@ -15,6 +15,9 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/visualization/cloud_viewer.h>
 
+//Customed
+#include "mkdir.hpp"
+
 using namespace std;
 
 std::string pkg_loc = ros::package::getPath("storage_test");
@@ -34,6 +37,7 @@ void pointcloudCallback(const boost::shared_ptr<const sensor_msgs::PointCloud2>&
 
 int main(int argc,char **argv)
 {
+	createDirectory(pkg_loc + "/data/");
 	ros::init(argc,argv,"save_pointcloud_PointXYZRGB");
 	ros::NodeHandle nh;
 	ros::Subscriber sub = nh.subscribe("/zed/point_cloud/cloud_registered", 1, pointcloudCallback);

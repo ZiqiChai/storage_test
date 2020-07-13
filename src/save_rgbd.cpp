@@ -20,6 +20,9 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/visualization/cloud_viewer.h>
 
+//Customed
+#include "mkdir.hpp"
+
 using namespace std;
 using namespace pcl;
 
@@ -45,126 +48,127 @@ void cloudCB(const sensor_msgs::PointCloud2& input)
 
     if(saveCloud)
     {
-        stringstream stream;
-        stream << pkg_loc << "/data/inputCloud"<< filesNum<< ".ply";
-        string filename = stream.str();
+    	stringstream stream;
+    	stream << pkg_loc << "/data/inputCloud"<< filesNum<< ".ply";
+    	string filename = stream.str();
 
-        if(io::savePLYFile(filename, cloud, true) == 0)
-        {
-            filesNum++;
-            cout << filename<<" Saved."<<endl;
-        }
-        else PCL_ERROR("Problem saving %s.\n", filename.c_str());
+    	if(io::savePLYFile(filename, cloud, true) == 0)
+    	{
+    		filesNum++;
+    		cout << filename<<" Saved."<<endl;
+    	}
+    	else PCL_ERROR("Problem saving %s.\n", filename.c_str());
 
-        saveCloud = false;
+    	saveCloud = false;
     }
 }
 
 
 void imageCallbackRGB(const sensor_msgs::ImageConstPtr &original_image)
 {
-    cv_bridge::CvImagePtr cv_ptr;
+	cv_bridge::CvImagePtr cv_ptr;
 
-    try
-    {
-        cv_ptr=cv_bridge::toCvCopy(original_image, sensor_msgs::image_encodings::BGR8);
-    }
-    catch (cv_bridge::Exception& e)
-    {
-        ROS_ERROR("Not able to convert sensor_msgs::Image to OpenCV::Mat format %s", e.what());
-        return;
-    }
+	try
+	{
+		cv_ptr=cv_bridge::toCvCopy(original_image, sensor_msgs::image_encodings::BGR8);
+	}
+	catch (cv_bridge::Exception& e)
+	{
+		ROS_ERROR("Not able to convert sensor_msgs::Image to OpenCV::Mat format %s", e.what());
+		return;
+	}
 
-    cv::Mat src_image = cv_ptr->image.clone();
+	cv::Mat src_image = cv_ptr->image.clone();
 
-    cv::imshow("rgb", src_image);
-    cv::waitKey(20);
+	cv::imshow("rgb", src_image);
+	cv::waitKey(20);
 
-    if(saveImg)
-    {
-        stringstream stream;
-        stream << pkg_loc << "/data/inputRGB"<< filesNum_<< ".png";
-        string filename = stream.str();
+	if(saveImg)
+	{
+		stringstream stream;
+		stream << pkg_loc << "/data/inputRGB"<< filesNum_<< ".png";
+		string filename = stream.str();
 
-        if(cv::imwrite(filename, src_image))
-        {
-            cout << filename<<" Saved."<<endl;
-        }
+		if(cv::imwrite(filename, src_image))
+		{
+			cout << filename<<" Saved."<<endl;
+		}
 
-        saveImg = false;
-    }
+		saveImg = false;
+	}
 }
 
 
 void imageCallbackDepth(const sensor_msgs::ImageConstPtr &original_image)
 {
-   cv::Mat depth;
+	cv::Mat depth;
    cv_bridge::CvImageConstPtr pCvImage;// 声明一个CvImage指针的实例
    pCvImage = cv_bridge::toCvShare(original_image, original_image->encoding);//将ROS消息中的图象信息提取，生成新cv类型的图象，复制给CvImage指针
    pCvImage->image.copyTo(depth);
 
    cv::imshow("depth", depth);
    cv::waitKey(20);
-    if(saveDepth)
-    {
-        stringstream stream;
-        stream << pkg_loc << "/data/inputDepth"<< filesNum_<< ".png";
-        string filename = stream.str();
+   if(saveDepth)
+   {
+   	stringstream stream;
+   	stream << pkg_loc << "/data/inputDepth"<< filesNum_<< ".png";
+   	string filename = stream.str();
 
-        if(cv::imwrite(filename, depth))
-        {
-            cout << filename<<" Saved."<<endl;
-        }
+   	if(cv::imwrite(filename, depth))
+   	{
+   		cout << filename<<" Saved."<<endl;
+   	}
 
-        saveDepth = false;
-    }
+   	saveDepth = false;
+   }
 }
 
 
 void keyboardEventOccured(const visualization::KeyboardEvent& event, void* nothing)
 {
-    if(event.getKeySym() == "space"&& event.keyDown())
-    {
-        saveCloud = true;
-        saveImg = true;
-        saveDepth = true;
-        filesNum_++;
-    }
+	if(event.getKeySym() == "space"&& event.keyDown())
+	{
+		saveCloud = true;
+		saveImg = true;
+		saveDepth = true;
+		filesNum_++;
+	}
 }
 
 
 boost::shared_ptr<visualization::CloudViewer> createViewer()
 {
-    boost::shared_ptr<visualization::CloudViewer> v(new visualization::CloudViewer("OpenNI viewer"));
-    v->registerKeyboardCallback(keyboardEventOccured);
-    return(v);
+	boost::shared_ptr<visualization::CloudViewer> v(new visualization::CloudViewer("OpenNI viewer"));
+	v->registerKeyboardCallback(keyboardEventOccured);
+	return(v);
 }
 
 
 int main (int argc, char** argv)
 {
-    ros::init(argc, argv, "rgbd_collector");
-    ros::NodeHandle nh;
-    cout<< "Press space to record point cloud to a file."<<endl;
+	createDirectory(pkg_loc + "/data/");
+	ros::init(argc, argv, "rgbd_collector");
+	ros::NodeHandle nh;
+	cout<< "Press space to record point cloud to a file."<<endl;
 
-    cv::namedWindow("rgb", 0);
-    cv::resizeWindow("rgb", 640,480);
+	cv::namedWindow("rgb", 0);
+	cv::resizeWindow("rgb", 640,480);
 
-    cv::namedWindow("depth", 0);
-    cv::resizeWindow("depth", 640,480);
+	cv::namedWindow("depth", 0);
+	cv::resizeWindow("depth", 640,480);
 
-    viewer = createViewer();
+	viewer = createViewer();
 
-    ros::Subscriber pointcloud_sub = nh.subscribe("/camera/depth/color/points", 1, cloudCB);
-    ros::Subscriber img_sub_rgb = nh.subscribe("/camera/color/image_raw",1 , imageCallbackRGB);
-    ros::Subscriber img_sub_depth = nh.subscribe("/camera/aligned_depth_to_color/image_raw",1 , imageCallbackDepth);
+	ros::Subscriber pointcloud_sub = nh.subscribe("/camera/depth/color/points", 1, cloudCB);
+	ros::Subscriber img_sub_rgb = nh.subscribe("/camera/color/image_raw",1 , imageCallbackRGB);
+	ros::Subscriber img_sub_depth = nh.subscribe("/camera/aligned_depth_to_color/image_raw",1 , imageCallbackDepth);
 
-    ros::Rate rate(30.0);
-    while (ros::ok())
-    {
-        ros::spinOnce();
-        rate.sleep();
-    }
+	ros::Rate rate(30.0);
+	while (ros::ok())
+	{
+		ros::spinOnce();
+		rate.sleep();
+	}
 
-    return 0;
+	return 0;
 }
