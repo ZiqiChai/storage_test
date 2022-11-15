@@ -40,7 +40,7 @@ int main(int argc,char **argv)
 	createDirectory(pkg_loc + "/data/");
 	ros::init(argc,argv,"save_pointcloud_PointXYZ");
 	ros::NodeHandle nh;
-	ros::Subscriber sub = nh.subscribe("/camera/depth/color/points", 1, pointcloudCallback);
+	ros::Subscriber sub = nh.subscribe("/camera/depth/points", 1, pointcloudCallback);
 	ros::spinOnce();
 	return 1;
 }
