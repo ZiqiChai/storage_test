@@ -31,7 +31,6 @@ std::string pkg_loc = ros::package::getPath("storage_test");
 boost::shared_ptr<visualization::CloudViewer> viewer;
 
 unsigned int filesNum = 0;
-unsigned int filesNum_ = 0;
 
 bool saveCloud(false);
 bool saveImg(false);
@@ -54,7 +53,6 @@ void cloudCB(const sensor_msgs::PointCloud2& input)
 
     	if(io::savePLYFile(filename, cloud, true) == 0)
     	{
-    		filesNum++;
     		cout << filename<<" Saved."<<endl;
     	}
     	else PCL_ERROR("Problem saving %s.\n", filename.c_str());
@@ -86,7 +84,7 @@ void imageCallbackRGB(const sensor_msgs::ImageConstPtr &original_image)
 	if(saveImg)
 	{
 		stringstream stream;
-		stream << pkg_loc << "/data/inputRGB"<< filesNum_<< ".png";
+		stream << pkg_loc << "/data/inputRGB"<< filesNum<< ".png";
 		string filename = stream.str();
 
 		if(cv::imwrite(filename, src_image))
@@ -111,7 +109,7 @@ void imageCallbackDepth(const sensor_msgs::ImageConstPtr &original_image)
    if(saveDepth)
    {
    	stringstream stream;
-   	stream << pkg_loc << "/data/inputDepth"<< filesNum_<< ".png";
+   	stream << pkg_loc << "/data/inputDepth"<< filesNum<< ".png";
    	string filename = stream.str();
 
    	if(cv::imwrite(filename, depth))
@@ -128,10 +126,10 @@ void keyboardEventOccured(const visualization::KeyboardEvent& event, void* nothi
 {
 	if(event.getKeySym() == "space"&& event.keyDown())
 	{
+		filesNum++;
 		saveCloud = true;
 		saveImg = true;
-		saveDepth = true;
-		filesNum_++;
+		saveDepth = true;		
 	}
 }
 
